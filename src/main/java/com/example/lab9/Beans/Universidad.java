@@ -6,7 +6,7 @@ public class Universidad {
     private int idUniversidad;
     private String nombre;
     private String logoURL;
-    private int idAdministrador;
+    private Rol idAdministrador;
     private Date fechaRegistro;
     private Date fechaEdicion;
 
@@ -34,11 +34,11 @@ public class Universidad {
         this.logoURL = logoURL;
     }
 
-    public int getIdAdministrador() {
+    public Rol getIdAdministrador() {
         return idAdministrador;
     }
 
-    public void setIdAdministrador(int idAdministrador) {
+    public void setIdAdministrador(Rol idAdministrador) {
         this.idAdministrador = idAdministrador;
     }
 

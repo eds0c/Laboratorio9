@@ -1,5 +1,6 @@
 package com.example.lab9.Daos;
 
+import com.example.lab9.Beans.Rol;
 import com.example.lab9.Beans.Usuario;
 
 import java.sql.*;
@@ -29,15 +30,129 @@ public class UsuarioDao extends DaoBase{
         return listarUsuarios;
     }
 
+    public ArrayList<Usuario> listarUsuariosDocentes() {
+        ArrayList<Usuario> listarUsuariosDocentes = new ArrayList<>();
+
+        try (Connection conn = this.getConection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM usuario u \n"
+                     + "left join rol r ON (u.idrol = r.idrol) \n"
+                     + "WHERE u.idrol = 4");) {
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario();
+                fetchUsuarioData(usuario, rs);
+
+                listarUsuariosDocentes.add(usuario);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return listarUsuariosDocentes;
+    }
+
+    public ArrayList<Usuario> listarUsuariosDecanos() {
+        ArrayList<Usuario> listarUsuariosDecanos = new ArrayList<>();
+
+        try (Connection conn = this.getConection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM usuario u \n"
+                     + "left join rol r ON (u.idrol = r.idrol) \n"
+                     + "WHERE u.idrol = 3");) {
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario();
+                fetchUsuarioData(usuario, rs);
+
+                listarUsuariosDecanos.add(usuario);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return listarUsuariosDecanos;
+    }
+
+    public ArrayList<Usuario> listarUsuariosRectores() {
+        ArrayList<Usuario> listarUsuariosRectores = new ArrayList<>();
+
+        try (Connection conn = this.getConection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM usuario u \n"
+                     + "left join rol r ON (u.idrol = r.idrol) \n"
+                     + "WHERE u.idrol = 2");) {
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario();
+                fetchUsuarioData(usuario, rs);
+
+                listarUsuariosRectores.add(usuario);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return listarUsuariosRectores;
+    }
+
+    public ArrayList<Usuario> listarUsuariosAdmins() {
+        ArrayList<Usuario> listarUsuariosAdmins = new ArrayList<>();
+
+        try (Connection conn = this.getConection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM usuario u \n"
+                     + "left join rol r ON (u.idrol = r.idrol) \n"
+                     + "WHERE u.idrol = 1");) {
+
+            while (rs.next()) {
+                Usuario usuario = new Usuario();
+                fetchUsuarioData(usuario, rs);
+
+                listarUsuariosAdmins.add(usuario);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return listarUsuariosAdmins;
+    }
+
     public Usuario obtenerUsuario(int idUsuario) {
 
         Usuario usuario = null;
 
-        String sql = "SELECT * FROM employees e \n"
-                + "left join jobs j ON (j.job_id = e.job_id) \n"
-                + "left join departments d ON (d.department_id = e.department_id)\n"
-                + "left  join employees m ON (e.manager_id = m.employee_id)\n"
-                + "WHERE e.employee_id = ?";
+        String sql = "SELECT * FROM usuario u \n"
+                + "left join rol r ON (u.idrol = r.idrol) \n"
+                + "WHERE u.idusuario = ?";
+
+        try (Connection conn = this.getConection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);) {
+
+            pstmt.setInt(1, idUsuario);
+
+            try (ResultSet rs = pstmt.executeQuery();) {
+
+                if (rs.next()) {
+                    usuario = new Usuario();
+                    fetchUsuarioData(usuario, rs);
+
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return usuario;
+    }
+
+    public Usuario obtenerUsuarioDocente(int idUsuario) {
+
+        Usuario usuario = null;
+
+        String sql = "SELECT * FROM usuario u \n"
+                + "left join rol r ON (u.idrol = r.idrol) \n"
+                + "WHERE u.idrol = 3 and u.idusuario = ?";
 
         try (Connection conn = this.getConection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
@@ -203,28 +318,10 @@ public class UsuarioDao extends DaoBase{
         usuario.setFechaRegistro(rs.getDate(7));
         usuario.setFechaEdicion(rs.getDate(8));
 
+        Rol rol = new Rol();
+        rol.setIdRol(rs.getInt(7));
+        rol.setNombre(rs.getString("nombre"));
+        usuario.setRol(rol);
 
-        Job job = new Job();
-        job.setJobId(rs.getString(7));
-        job.setJobTitle(rs.getString("job_title"));
-        employee.setJob(job);
-
-        employee.setSalary(rs.getBigDecimal(8));
-        employee.setCommissionPct(rs.getBigDecimal(9));
-
-        if (rs.getInt("e.manager_id") != 0) {
-            Employee manager = new Employee();
-            manager.setEmployeeId(rs.getInt("e.manager_id"));
-            manager.setFirstName(rs.getString("m.first_name"));
-            manager.setLastName(rs.getString("m.last_name"));
-            employee.setManager(manager);
-        }
-
-        if (rs.getInt("e.department_id") != 0) {
-            Department department = new Department();
-            department.setDepartmentId(rs.getInt(11));
-            department.setDepartmentName(rs.getString("d.department_name"));
-            employee.setDepartment(department);
-        }
     }
 }
